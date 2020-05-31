@@ -5,10 +5,9 @@
 #include <queue>
 #include <climits>
 #include <cstdio>
+#include <utility>
 
 using namespace std;
-
-const int N = 123;
 
 map < string, vector < string > > neighbores;
 map < string, vector < double > > w; //Store weights between vertices
@@ -16,26 +15,24 @@ map < string, double > ans;
 map < string, vector < string > > path;
 
 void go(string src) { //Dijkstra
-    queue < string > q;
-    q.push(src);
-    while (!q.empty()) {
-        string v = q.front();
-        q.pop();
+    priority_queue < pair < double, string > > pq;
+    pq.push(make_pair(0, src));
+    while (!pq.empty()) {
+        string v = pq.top().second;
+        pq.pop();
         vector < double >::iterator it2 = w[v].begin();
         for (vector < string >::iterator it = neighbores[v].begin(); it != neighbores[v].end(); it++, it2++) {
-            if (ans[*it] == INT_MAX) {
-                q.push(*it);
-            }
-            if (ans[v] + *it2 <= ans[*it]) {
+            if (ans[v] + *it2 < ans[*it]) {
                 ans[*it] = ans[v] + *it2;
                 path[*it] = path[v];
                 path[*it].push_back(*it);
+                pq.push(make_pair(-ans[*it], *it));
             }
         }
     }
 }
 
-int main() {
+int32_t main() {
     int n, m;
     cin >> n >> m;
     for (int i = 0; i < n; i++) {
@@ -63,7 +60,7 @@ int main() {
     ans[srcKey] = 0;
     path[srcKey].push_back(srcKey);
     go(srcKey);
-    printf("%.2f\n", ans[destKey]);
+    printf("%.2lf\n", ans[destKey]);
     for (int i = 0; i < path[destKey].size(); i++) {
         cout << path[destKey][i] << ' ';
     }
